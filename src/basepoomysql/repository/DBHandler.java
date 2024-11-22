@@ -15,11 +15,12 @@ import java.sql.ResultSet;
  * @author luk0s
  */
 public class DBHandler {
+
     private Connection connection;
     private final String url = "jdbc:mysql://localhost:3306/libreria";
     private final String user = "root";
     private final String password = "UST";
-    
+
     public void connect() throws Exception {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -30,7 +31,7 @@ public class DBHandler {
             throw new Exception("No se encontró el driver de MySQL.", e);
         }
     }
-    
+
     public void disconnect() {
         if (connection != null) {
             try {
@@ -41,7 +42,7 @@ public class DBHandler {
             }
         }
     }
-    
+
     public int executePreparedUpdate(String query, Object... parameters) throws SQLException {
         if (connection == null) {
             throw new SQLException("No hay conexión establecida.");
@@ -53,7 +54,7 @@ public class DBHandler {
             return preparedStatement.executeUpdate();
         }
     }
-    
+
     public ResultSet executePreparedQuery(String query, Object... parameters) throws SQLException {
         if (connection == null) {
             throw new SQLException("No hay conexión establecida.");

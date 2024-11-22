@@ -5,6 +5,10 @@
 package basepoomysql.windows;
 
 import basepoomysql.services.BookService;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import basepoomysql.pojos.Book;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -14,6 +18,8 @@ public class BooksWindow extends javax.swing.JDialog {
 
     /**
      * Creates new form BooksWindow
+     * @param parent
+     * @param modal
      */
     public BooksWindow(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -40,9 +46,16 @@ public class BooksWindow extends javax.swing.JDialog {
         jLabel5 = new javax.swing.JLabel();
         btnSave = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblBooks = new javax.swing.JTable();
+        btnUpdate = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 0, 18)); // NOI18N
         jLabel1.setText("Mantenedor Libros");
@@ -62,7 +75,7 @@ public class BooksWindow extends javax.swing.JDialog {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblBooks.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -85,13 +98,33 @@ public class BooksWindow extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
-        if (jTable1.getColumnModel().getColumnCount() > 0) {
-            jTable1.getColumnModel().getColumn(0).setResizable(false);
-            jTable1.getColumnModel().getColumn(1).setResizable(false);
-            jTable1.getColumnModel().getColumn(2).setResizable(false);
-            jTable1.getColumnModel().getColumn(3).setResizable(false);
+        tblBooks.getTableHeader().setReorderingAllowed(false);
+        tblBooks.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblBooksMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tblBooks);
+        if (tblBooks.getColumnModel().getColumnCount() > 0) {
+            tblBooks.getColumnModel().getColumn(0).setResizable(false);
+            tblBooks.getColumnModel().getColumn(1).setResizable(false);
+            tblBooks.getColumnModel().getColumn(2).setResizable(false);
+            tblBooks.getColumnModel().getColumn(3).setResizable(false);
         }
+
+        btnUpdate.setText("Editar Libro");
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setText("Eliminar Libro");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -99,19 +132,22 @@ public class BooksWindow extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2)
-                    .addComponent(txtISDN)
-                    .addComponent(jLabel3)
-                    .addComponent(txtName)
-                    .addComponent(jLabel4)
-                    .addComponent(txtBookShelf)
-                    .addComponent(jLabel5)
-                    .addComponent(txtPages)
-                    .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 583, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
+                        .addComponent(txtISDN)
+                        .addComponent(jLabel3)
+                        .addComponent(txtName)
+                        .addComponent(jLabel4)
+                        .addComponent(txtBookShelf)
+                        .addComponent(jLabel5)
+                        .addComponent(txtPages)
+                        .addComponent(btnSave, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnUpdate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -140,6 +176,10 @@ public class BooksWindow extends javax.swing.JDialog {
                         .addComponent(txtPages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(btnSave)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnUpdate)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnDelete)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -149,9 +189,77 @@ public class BooksWindow extends javax.swing.JDialog {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         String response = BookService.AddBook(txtISDN.getText(), txtName.getText(), txtBookShelf.getText(), txtPages.getText());
-        System.out.println(response);
+        if ("ok".equals(response)) {
+            JOptionPane.showMessageDialog(this, "Se registró el libro", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            getBooks();
+        } else {
+            JOptionPane.showMessageDialog(this, response, "Error al realizar acción", JOptionPane.ERROR_MESSAGE);
+        }
+        clearInputs();
     }//GEN-LAST:event_btnSaveActionPerformed
 
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        getBooks();
+    }//GEN-LAST:event_formWindowOpened
+
+    private void tblBooksMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblBooksMouseClicked
+        int selectedRowIndex = tblBooks.getSelectedRow();
+        DefaultTableModel tableModel = (DefaultTableModel) tblBooks.getModel();
+        txtISDN.setText((String)tableModel.getValueAt(selectedRowIndex, 0));
+        txtName.setText((String)tableModel.getValueAt(selectedRowIndex, 1));
+        txtBookShelf.setText((String)tableModel.getValueAt(selectedRowIndex, 2));
+        txtPages.setText(((Integer)tableModel.getValueAt(selectedRowIndex, 3)).toString());
+    }//GEN-LAST:event_tblBooksMouseClicked
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        String response = BookService.UpdateBook(txtISDN.getText(), txtName.getText(), txtBookShelf.getText(), txtPages.getText());
+        if ("ok".equals(response)) {
+            JOptionPane.showMessageDialog(this, "Se actualizó el libro", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            getBooks();
+        } else {
+            JOptionPane.showMessageDialog(this, response, "Error al realizar acción", JOptionPane.ERROR_MESSAGE);
+        }
+        clearInputs();
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        String response = BookService.DeleteBook(txtISDN.getText());
+        if ("ok".equals(response)) {
+            JOptionPane.showMessageDialog(this, "Se eliminó el libro", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            getBooks();
+        } else {
+            JOptionPane.showMessageDialog(this, response, "Error al realizar acción", JOptionPane.ERROR_MESSAGE);
+        }
+        clearInputs();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void getBooks() {
+        ArrayList<Book> books = BookService.GetBooks();
+        if (books != null) {
+            makeTable(books);
+        } else {
+            JOptionPane.showMessageDialog(this, "No fue posible obtener libros", "Error al realizar acción", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void makeTable(ArrayList<Book> books) {
+        DefaultTableModel tableModel = (DefaultTableModel) tblBooks.getModel();
+        tableModel.setRowCount(0);
+        for (int i = 0; i < books.size(); i++) {
+            tableModel.addRow(new Object[]{
+                books.get(i).getIsdn(),
+                books.get(i).getName(),
+                books.get(i).getBookshelf(),
+                books.get(i).getPages(),});
+        }
+    }
+    
+    private void clearInputs() {
+        txtISDN.setText("");
+        txtName.setText("");
+        txtBookShelf.setText("");
+        txtPages.setText("");
+    }
     /**
      * @param args the command line arguments
      */
@@ -195,14 +303,16 @@ public class BooksWindow extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnSave;
+    private javax.swing.JButton btnUpdate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable tblBooks;
     private javax.swing.JTextField txtBookShelf;
     private javax.swing.JTextField txtISDN;
     private javax.swing.JTextField txtName;
